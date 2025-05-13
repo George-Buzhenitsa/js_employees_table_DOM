@@ -166,6 +166,7 @@ button.addEventListener('click', (e) => {
   e.preventDefault();
 
   const newEmployeeName = employeeForm.children[0].lastChild.value;
+  const newEmployeePosition = employeeForm.children[1].lastChild.value;
   const newEmployeeAge = employeeForm.children[3].lastChild.value;
 
   document
@@ -180,6 +181,10 @@ button.addEventListener('click', (e) => {
     notification.setAttribute('class', 'error');
     notification.textContent = 'Name is too short';
     employeeForm.children[0].append(notification);
+  } else if (!newEmployeePosition) {
+    notification.setAttribute('class', 'error');
+    notification.textContent = 'Position is required';
+    employeeForm.children[1].append(notification);
   } else if (newEmployeeAge < 18 || newEmployeeAge > 90) {
     notification.setAttribute('class', 'error');
     notification.textContent = 'Age is too higth';
