@@ -165,55 +165,76 @@ const employeeForm = document.querySelector('form');
 button.addEventListener('click', (e) => {
   e.preventDefault();
 
-  const newEmployeeName = employeeForm.children[0].lastChild.value;
-  const newEmployeePosition = employeeForm.children[1].lastChild.value;
-  const newEmployeeAge = employeeForm.children[3].lastChild.value;
+  // debugger;
+
+  const newEmployeeName =
+    employeeForm.children[0].querySelector('[name="name"]')?.value || '';
+  const newEmployeePosition =
+    employeeForm.children[1].querySelector('[name="position"]')?.value || '';
+  const newEmployeeAge =
+    employeeForm.children[3].querySelector('[name="age"]')?.value || '';
+
+  const regEx = /[a-zA-Z]{4,}/i;
 
   document
     .querySelectorAll('[data-qa="notification"]')
     .forEach((el) => el.remove());
 
+  const showError = (value, k) => {
+    const errorNotification = document.createElement('div');
+
+    errorNotification.setAttribute('data-qa', 'notification');
+    errorNotification.setAttribute('class', 'error');
+    errorNotification.textContent = `${value || 'Empty value'} is invalid`;
+    employeeForm.children[k].append(errorNotification);
+  };
+
+  let isError = false;
+
+  if (!regEx.test(newEmployeeName.trim())) {
+    showError(newEmployeeName, 0);
+    isError = true;
+  }
+
+  if (!regEx.test(newEmployeePosition.trim())) {
+    showError(newEmployeePosition, 1);
+    isError = true;
+  }
+
+  if (newEmployeeAge < 18 || newEmployeeAge > 90) {
+    showError(newEmployeeAge, 3);
+    isError = true;
+  }
+
+  if (isError) {
+    return;
+  }
+
+  const tr = document.createElement('tr');
+
+  for (let i = 0; i < employeeForm.children.length - 1; i++) {
+    const td = document.createElement('td');
+
+    if (employeeForm.children[i].textContent === 'Salary') {
+      td.innerText =
+        '$' + Number(employeeForm.children[i].lastChild.value).toLocaleString();
+      tr.append(td);
+      continue;
+    }
+
+    td.innerText = employeeForm.children[i].lastChild.value;
+    tr.append(td);
+  }
+
+  tableBody.append(tr);
+  employeesList = document.querySelectorAll('tbody tr');
+  createEmployees();
+
   const notification = document.createElement('div');
 
   notification.setAttribute('data-qa', 'notification');
-
-  if (newEmployeeName.length < 4) {
-    notification.setAttribute('class', 'error');
-    notification.textContent = 'Name is too short';
-    employeeForm.children[0].append(notification);
-  } else if (!newEmployeePosition) {
-    notification.setAttribute('class', 'error');
-    notification.textContent = 'Position is required';
-    employeeForm.children[1].append(notification);
-  } else if (newEmployeeAge < 18 || newEmployeeAge > 90) {
-    notification.setAttribute('class', 'error');
-    notification.textContent = 'Age is too higth';
-    employeeForm.children[3].append(notification);
-  } else {
-    const tr = document.createElement('tr');
-
-    for (let i = 0; i < employeeForm.children.length - 1; i++) {
-      const td = document.createElement('td');
-
-      if (employeeForm.children[i].textContent === 'Salary') {
-        td.innerText =
-          '$' +
-          Number(employeeForm.children[i].lastChild.value).toLocaleString();
-        tr.append(td);
-        continue;
-      }
-
-      td.innerText = employeeForm.children[i].lastChild.value;
-      tr.append(td);
-    }
-
-    tableBody.append(tr);
-    employeesList = document.querySelectorAll('tbody tr');
-    createEmployees();
-
-    notification.setAttribute('class', 'success');
-    notification.textContent = 'Successfully added new employee';
-    body.append(notification);
-  }
+  notification.setAttribute('class', 'success');
+  notification.textContent = 'Successfully added new employee';
+  body.append(notification);
 });
 // #endregion
