@@ -165,8 +165,6 @@ const employeeForm = document.querySelector('form');
 button.addEventListener('click', (e) => {
   e.preventDefault();
 
-  // debugger;
-
   const newEmployeeName =
     employeeForm.children[0].querySelector('[name="name"]')?.value || '';
   const newEmployeePosition =
@@ -181,11 +179,39 @@ button.addEventListener('click', (e) => {
     .forEach((el) => el.remove());
 
   const showError = (value, k) => {
+    employeeForm.children[k].style.position = 'relative';
+
     const errorNotification = document.createElement('div');
 
     errorNotification.setAttribute('data-qa', 'notification');
     errorNotification.setAttribute('class', 'error');
-    errorNotification.textContent = `${value || 'Empty value'} is invalid`;
+
+    if (k === 0) {
+      errorNotification.textContent = value
+        ? `${value} is too short`
+        : 'Empty value is invalid';
+    } else if (k === 1) {
+      errorNotification.textContent = value
+        ? `${value} is too short`
+        : 'Empty value is invalid';
+    } else {
+      errorNotification.textContent = value
+        ? 'Age has to be from 18 to 90 inclusive'
+        : 'Empty value is invalid';
+    }
+
+    Object.assign(errorNotification.style, {
+      position: 'absolute',
+      top: '-36px',
+      right: '0',
+      backgroundColor: 'white',
+      color: 'red',
+      border: '2px solid red',
+      borderRadius: '4px',
+      fontSize: '14px',
+      padding: '8px',
+    });
+
     employeeForm.children[k].append(errorNotification);
   };
 
@@ -194,16 +220,22 @@ button.addEventListener('click', (e) => {
   if (!regEx.test(newEmployeeName.trim())) {
     showError(newEmployeeName, 0);
     isError = true;
+
+    return;
   }
 
   if (!regEx.test(newEmployeePosition.trim())) {
     showError(newEmployeePosition, 1);
     isError = true;
+
+    return;
   }
 
-  if (newEmployeeAge < 18 || newEmployeeAge > 90) {
+  if (newEmployeeAge < 18 || newEmployeeAge >= 90) {
     showError(newEmployeeAge, 3);
     isError = true;
+
+    return;
   }
 
   if (isError) {
@@ -236,5 +268,42 @@ button.addEventListener('click', (e) => {
   notification.setAttribute('class', 'success');
   notification.textContent = 'Successfully added new employee';
   body.append(notification);
+
+  Array.from(employeeForm.children).forEach((field) => {
+    const input = field.querySelector('input, select');
+
+    if (input) {
+      input.value = '';
+    }
+  });
 });
+
+// #endregion
+
+// #region renameTheFirld
+
+Array.from(employeesList).forEach((field) => {
+  field.addEventListener('dblclick', (e) => {
+    const newInput = document.createElement('input');
+
+    if (e.target.closest('td')) {
+      newInput.setAttribute('value', e.target.textContent);
+
+      e.target.replaceWith(newInput);
+    }
+
+    newInput.addEventListener('keydown', (b) => {
+      if (b.key === 'Enter') {
+        const newTd = document.createElement('td');
+
+        newTd.textContent = newInput.value;
+        newInput.replaceWith(newTd);
+      }
+
+      employeesList = document.querySelectorAll('tbody tr');
+      createEmployees();
+    });
+  });
+});
+
 // #endregion
